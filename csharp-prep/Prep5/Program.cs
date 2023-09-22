@@ -4,11 +4,7 @@ class Program
 {
     static void Main(string[] args)
     {
-
-
-        static void Main()
-        {
-
+    
             DisplayWelcomeMessage();
 
             string prompt = username();
@@ -16,11 +12,13 @@ class Program
             int math = squared(userNumber);
             Display(prompt, math);
 
+    }
+
             
 
 
 
-        }
+        
          static void DisplayWelcomeMessage()
         {
             Console.WriteLine("Welcome to the program!");
@@ -56,5 +54,5 @@ class Program
 
 
 
-    }
+    
 }

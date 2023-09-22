@@ -26,14 +26,14 @@ class Program
 
         static string username()
         {
-            Console.WriteLine("Whats is your name? ");
+            Console.Write("Whats is your name? ");
             string name = Console.ReadLine();
             return name;
         }
 
         static int favoriteNum()
         {
-            Console.WriteLine("Whats is your favorite number? ");
+            Console.Write("Whats is your favorite number? ");
             int favorite = int.Parse(Console.ReadLine());
             return favorite;
         }

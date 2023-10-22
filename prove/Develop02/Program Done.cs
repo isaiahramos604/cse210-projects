@@ -1,74 +1,120 @@
 using System;
 using System.Collections.Generic;
-using System.IO; 
+using System.IO;
+using System.Linq;
+
+class Entry
+{
+    public string Prompt { get; set; }
+    public string Response { get; set; }
+    public DateTime Date { get; set; }
+}
+
+class Journal
+{
+    private List<Entry> entries = new List<Entry>();
+
+    public void AddEntry(string prompt, string response)
+    {
+        Entry entry = new Entry
+        {
+            Prompt = prompt,
+            Response = response,
+            Date = DateTime.Now
+        };
+        entries.Add(entry);
+    }
+
+    public void DisplayJournal()
+    {
+        foreach (var entry in entries)
+        {
+            Console.WriteLine($"Date: {entry.Date}");
+            Console.WriteLine($"Prompt: {entry.Prompt}");
+            Console.WriteLine($"Response: {entry.Response}\n");
+        }
+    }
+
+    public void SaveJournalToFile(string filename)
+    {
+        using (StreamWriter writer = new StreamWriter(filename))
+        {
+            foreach (var entry in entries)
+            {
+                writer.WriteLine($"Date: {entry.Date}");
+                writer.WriteLine($"Prompt: {entry.Prompt}");
+                writer.WriteLine($"Response: {entry.Response}\n");
+            }
+        }
+        Console.WriteLine("Journal saved to " + filename);
+    }
+
+    public void LoadJournalFromFile(string filename)
+    {
+        entries.Clear();
+
+        if (File.Exists(filename))
+        {
+            string[] lines = File.ReadAllLines(filename);
+            for (int i = 0; i < lines.Length; i += 4)
+            {
+                Entry entry = new Entry
+                {
+                    Date = DateTime.Parse(lines[i].Replace("Date: ", "")),
+                    Prompt = lines[i + 1].Replace("Prompt: ", ""),
+                    Response = lines[i + 2].Replace("Response: ", "")
+                };
+                entries.Add(entry);
+            }
+            Console.WriteLine("Journal loaded from " + filename);
+        }
+    }
+}
 
 class Program
 {
     static void Main(string[] args)
     {
-        List<string> prompts = new List<string>
-        {
-            "How are you feeling today?",
-            "What do you want to do better today?",
-            "What can you do differently today?",
-            "What was the best part of your day today?",
-            "What can you ask Heavenly Father to help you with?"
-        };
+        Journal journal = new Journal();
 
-        Random random = new Random();
-        bool running = true;
-        List<string> userResponses = new List<string>(); 
-
-        while (running)
+        while (true)
         {
-            Console.WriteLine("Please Select From the following choices");
-            Console.WriteLine("1. Write");
-            Console.WriteLine("2. Display");
-            Console.WriteLine("3. Load");
-            Console.WriteLine("4. Save");
+            Console.WriteLine("\nMenu:");
+            Console.WriteLine("1. Write a new entry");
+            Console.WriteLine("2. Display the journal");
+            Console.WriteLine("3. Save the journal to a file");
+            Console.WriteLine("4. Load the journal from a file");
             Console.WriteLine("5. Quit");
-            Console.WriteLine("What would you like to do? ");
+            Console.Write("What would you like to do? ");
 
-            string valuefromUser = Console.ReadLine();
-
-            if (int.TryParse(valuefromUser, out int choice))
+            if (int.TryParse(Console.ReadLine(), out int choice))
             {
                 switch (choice)
                 {
                     case 1:
-                        int randomIndex = random.Next(prompts.Count);
+                        int randomIndex = new Random().Next(prompts.Count);
                         string randomPrompt = prompts[randomIndex];
                         Console.WriteLine(randomPrompt);
-                        DateTime theCurrentTime = DateTime.Now;
-                        string timeStamp = theCurrentTime.ToShortDateString();
-
                         string userResponse = Console.ReadLine();
-                        userResponses.Add($"{timeStamp}: {randomPrompt} - {userResponse}");
+                        journal.AddEntry(randomPrompt, userResponse);
                         break;
                     case 2:
-                        
-                        Console.WriteLine("User Responses:");
-                        foreach (string response in userResponses)
-                        {
-                            Console.WriteLine(response);
-                        }
+                        Console.WriteLine("User Journal Entries:");
+                        journal.DisplayJournal();
                         break;
                     case 3:
-                        
-                        Console.WriteLine("Please enter your file name.");
-
-                        string LoadFilename = Console.ReadLine();
-                        LoadSavedFiles(userResponses, LoadFilename);
+                        Console.Write("Please enter the filename to save the journal: ");
+                        string saveFilename = Console.ReadLine();
+                        journal.SaveJournalToFile(saveFilename);
                         break;
                     case 4:
-                        
-                        UserSaveFile(userResponses);
+                        Console.Write("Please enter the filename to load the journal: ");
+                        string loadFilename = Console.ReadLine();
+                        journal.LoadJournalFromFile(loadFilename);
                         break;
                     case 5:
-                        
-                        running = false;
                         Console.WriteLine("Goodbye!");
-                        break;
+                        return;
                 }
             }
             else
@@ -78,35 +124,13 @@ class Program
         }
     }
 
-    static void UserSaveFile(List<string> userResponses)
+    private static List<string> prompts = new List<string>
     {
-        Console.WriteLine("What would you like to name your save file?");
-        string filename = Console.ReadLine();
-
-        using (StreamWriter outputFile = new StreamWriter(filename))
-        {
-            foreach (string response in userResponses)
-            {
-                outputFile.WriteLine(response);
-            }
-            Console.WriteLine("User responses saved to " + filename);
-            
-        }
-        
-    }
-    static void LoadSavedFiles(List<string> userResponses, string filename)
-    {
-        if (File.Exists(filename))
-        {
-            userResponses.Clear();
-            userResponses.AddRange(File.ReadAllLines(filename));
-            Console.WriteLine($"{filename} loaded!");
-
-        }
-
-
-
-
-    }
+        "How are you feeling today?",
+        "What do you want to do better today?",
+        "What can you do differently today?",
+        "What was the best part of your day today?",
+        "What can you ask Heavenly Father to help you with?"
+    };
 }
 

@@ -55,7 +55,7 @@ class Program
     {
         string[] words = script.Split(' ');
 
-        // Determine how many words to replace (you can change this number)
+        
         int numWordsToReplace = random.Next(1, 3);
 
         for (int i = 0; i < numWordsToReplace; i++)
